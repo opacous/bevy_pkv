@@ -20,6 +20,7 @@ trait StoreImpl {
     }
     fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, Self::GetError>;
     fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError>;
+    fn remove(&mut self, key: &str) -> Result<(), Self::SetError>;
     fn clear(&mut self) -> Result<(), Self::SetError>;
 }
 

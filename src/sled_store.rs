@@ -70,6 +70,11 @@ impl StoreImpl for SledStore {
         Ok(value)
     }
 
+    fn remove(&mut self, key: &str) -> Result<(), Self::SetError> {
+        self.db.remove(key)?;
+        Ok(())
+    }
+
     /// Clear all keys and their values
     /// clear is also a kind of store so it will return SetError on failure
     fn clear(&mut self) -> Result<(), Self::SetError> {

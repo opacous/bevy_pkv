@@ -85,6 +85,13 @@ impl StoreImpl for LocalStorageStore {
         Ok(())
     }
 
+    fn remove(&mut self, key: &str) -> Result<(), Self::SetError> {
+        let storage = self.storage();
+        let key = self.format_key(key);
+        storage.delete(&key).map_err(SetError::Clear)?;
+        Ok(())
+    }
+
     /// Because the data is cleared by looping through it, it may take time or run slowly
     fn clear(&mut self) -> Result<(), SetError> {
         let storage = self.storage();

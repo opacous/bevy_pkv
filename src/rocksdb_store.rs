@@ -75,6 +75,11 @@ impl StoreImpl for RocksDBStore {
         Ok(value)
     }
 
+    fn remove(&mut self, key: &str) -> Result<(), Self::SetError> {
+        self.db.delete(key)?;
+        Ok(())
+    }
+
     /// Clear all keys and their values
     /// The RocksDB adapter uses an iterator to achieve this, unlike sled
     fn clear(&mut self) -> Result<(), Self::SetError> {

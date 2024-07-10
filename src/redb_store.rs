@@ -51,6 +51,8 @@ pub enum SetError {
     /// Error when serializing the value
     #[error("MessagePack serialization error")]
     MessagePack(#[from] rmp_serde::encode::Error),
+    #[error("KeyConversionError")]
+    KeyConversion,
 }
 
 impl ReDbStore {
@@ -117,6 +119,17 @@ impl StoreImpl for ReDbStore {
     fn clear(&mut self) -> Result<(), Self::SetError> {
         let write_txn = self.db.begin_write()?;
         write_txn.delete_table(TABLE)?;
+        write_txn.commit()?;
+        Ok(())
+    }
+
+    fn remove(&mut self, key: &str) -> Result<(), Self::SetError> {
+        let write_txn = self.db.begin_write()?;
+        {
+            let mut table = write_txn.open_table(TABLE)?;
+            // let key = table.get(key)?.ok_or(Self::SetError::KeyConversion)?;
+            table.remove(key)?.ok_or(Self::SetError::KeyConversion)?;
+        }
         write_txn.commit()?;
         Ok(())
     }
