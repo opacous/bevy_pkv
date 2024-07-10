@@ -127,6 +127,10 @@ impl PkvStore {
         self.inner.get(key.as_ref())
     }
 
+    pub fn remove(&mut self, key: impl AsRef<str>) -> Result<(), SetError> {
+        self.inner.remove(key.as_ref())
+    }
+
     /// Clear all key values data
     /// returns Err(SetError) if clear error
     pub fn clear(&mut self) -> Result<(), SetError> {
