@@ -77,7 +77,9 @@ impl StoreImpl for RocksDBStore {
     }
 
     fn get_with<T: for<'de> DeserializeSeed<'de>>(&self, key: &str, seed: T) -> Result<<T as DeserializeSeed<'_>>::Value, Self::GetError> {
-        todo!()
+        let bytes = self.db.get(key)?.ok_or(Self::GetError::NotFound)?;
+        let mut deserializer = rmp_serde::decode::Deserializer::new(bytes.as_slice());
+        seed.deserialize(&mut deserializer).map_err(Into::into)
     }
 
     fn remove(&mut self, key: &str) -> Result<(), Self::SetError> {

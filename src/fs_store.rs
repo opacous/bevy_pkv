@@ -62,7 +62,11 @@ impl StoreImpl for FSStore {
     }
 
     fn get_with<T: for<'de> DeserializeSeed<'de>>(&self, key: &str, seed: T) -> Result<<T as DeserializeSeed<'_>>::Value, Self::GetError> {
-        todo!()
+        let key = self.format_key(key);
+        let data = fs::read(key)?;
+
+        let mut deserializer = serde_json::de::Deserializer::from_reader(data.as_slice());
+        seed.deserialize(&mut deserializer).map_err(|e| Self::GetError::from(e))
     }
 
     fn set<T: serde::Serialize>(&mut self, key: &str, value: &T) -> Result<(), SetError> {

@@ -15,7 +15,7 @@ serde = "1.0"
 bevy_ecs = { version = "0.13", optional = true } # we need for deriving Resource in PkvStore
 
 [features]
-default = ["bevy", "redb"]
+default = ["bevy", "rocksdb"]
 bevy = ["dep:bevy_ecs"]
 rocksdb = ["dep:rocksdb"]
 sled = ["dep:sled"]

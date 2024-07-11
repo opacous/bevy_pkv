@@ -118,7 +118,12 @@ impl StoreImpl for ReDbStore {
     }
 
     fn get_with<T: for<'de> DeserializeSeed<'de>>(&self, key: &str, seed: T) -> Result<<T as DeserializeSeed<'_>>::Value, Self::GetError> {
-        todo!()
+        let read_txn = self.db.begin_read()?;
+        let table = read_txn.open_table(TABLE)?;
+        let key = table.get(key)?.ok_or(Self::GetError::NotFound)?;
+        let bytes = key.value();
+        let mut deserializer = rmp_serde::decode::Deserializer::new(bytes);
+        seed.deserialize(&mut deserializer).map_err(Into::into)
     }
 
     /// Clear all keys and their values
