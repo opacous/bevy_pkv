@@ -135,7 +135,7 @@ impl PkvStore {
     pub fn get<T: DeserializeOwned>(&self, key: impl AsRef<str>) -> Result<T, GetError> {
         self.inner.get(key.as_ref())
     }
-    fn get_with<T: for<'de> DeserializeSeed<'de>>(&self, key: &str, seed: T) -> Result<<T as DeserializeSeed<'_>>::Value, GetError>{
+    pub fn get_with<T: for<'de> DeserializeSeed<'de>>(&self, key: &str, seed: T) -> Result<<T as DeserializeSeed<'_>>::Value, GetError>{
         self.inner.get_with(key, seed)
     }
 
