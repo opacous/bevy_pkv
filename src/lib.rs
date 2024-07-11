@@ -6,8 +6,8 @@ compile_error!(
     "the \"rocksdb\", \"redb\" and \"sled\" features may not be enabled at the same time"
 );
 
-#[cfg(not(any(rocksdb_backend, sled_backend, redb_backend, wasm)))]
-compile_error!("either the \"rocksdb\", \"redb\" or \"sled\" feature must be enabled on native");
+#[cfg(not(any(rocksdb_backend, sled_backend, redb_backend, fs_backend, wasm)))]
+compile_error!("either the \"rocksdb\", \"redb\" or \"sled\" \"filestore\" feature must be enabled on native");
 
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -47,7 +47,7 @@ pub use backend::{GetError, SetError};
 
 enum Location<'a> {
     PlatformDefault(&'a PlatformDefault),
-    #[cfg(any(sled_backend, rocksdb_backend, redb_backend))]
+    #[cfg(any(sled_backend, rocksdb_backend, redb_backend, fs_backend))]
     CustomPath(&'a std::path::Path),
 }
 
@@ -57,7 +57,14 @@ mod redb_store;
 #[cfg(redb_backend)]
 use redb_store::{self as backend};
 
-#[cfg(any(sled_backend, rocksdb_backend, redb_backend))]
+
+#[cfg(fs_backend)]
+mod fs_store;
+
+#[cfg(fs_backend)]
+use fs_store::{self as backend};
+
+#[cfg(any(sled_backend, rocksdb_backend, redb_backend, fs_backend))]
 mod path;
 
 /// Main resource for setting/getting values
