@@ -1,3 +1,4 @@
+use serde::de::DeserializeSeed;
 use crate::{Location, PlatformDefault, StoreImpl};
 
 #[derive(Debug, Default)]
@@ -105,5 +106,9 @@ impl StoreImpl for LocalStorageStore {
             }
         }
         Ok(())
+    }
+
+    fn get_with<T: for<'de> DeserializeSeed<'de>>(&self, key: &str, seed: T) -> Result<<T as DeserializeSeed<'_>>::Value, Self::GetError> {
+        todo!()
     }
 }

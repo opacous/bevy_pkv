@@ -10,6 +10,7 @@ compile_error!(
 compile_error!("either the \"rocksdb\", \"redb\" or \"sled\" \"filestore\" feature must be enabled on native");
 
 use serde::{de::DeserializeOwned, Serialize};
+use serde::de::DeserializeSeed;
 
 trait StoreImpl {
     type GetError;
@@ -19,6 +20,7 @@ trait StoreImpl {
         self.set(key, &value.to_string())
     }
     fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, Self::GetError>;
+    fn get_with<T: for<'de> DeserializeSeed<'de>>(&self, key: &str, seed: T) -> Result<<T as DeserializeSeed<'_>>::Value, Self::GetError>;
     fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError>;
     fn remove(&mut self, key: &str) -> Result<(), Self::SetError>;
     fn clear(&mut self) -> Result<(), Self::SetError>;
@@ -131,6 +133,10 @@ impl PkvStore {
     /// Get the value for the given key
     /// returns Err(GetError::NotFound) if the key does not exist in the key value store.
     pub fn get<T: DeserializeOwned>(&self, key: impl AsRef<str>) -> Result<T, GetError> {
+        self.inner.get(key.as_ref())
+    }
+
+    pub fn get_into<T: DeserializeOwned>(&self, key: impl AsRef<str>) -> Result<T, GetError> {
         self.inner.get(key.as_ref())
     }
 

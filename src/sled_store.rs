@@ -1,5 +1,6 @@
 use crate::{Location, StoreImpl};
 use serde::{de::DeserializeOwned, Serialize};
+use serde::de::DeserializeSeed;
 
 #[derive(Debug)]
 pub struct SledStore {
@@ -68,6 +69,10 @@ impl StoreImpl for SledStore {
         let bytes = self.db.get(key)?.ok_or(Self::GetError::NotFound)?;
         let value = rmp_serde::from_slice(&bytes)?;
         Ok(value)
+    }
+
+    fn get_with<T: for<'de> DeserializeSeed<'de>>(&self, key: &str, seed: T) -> Result<<T as DeserializeSeed<'_>>::Value, Self::GetError> {
+        todo!()
     }
 
     fn remove(&mut self, key: &str) -> Result<(), Self::SetError> {

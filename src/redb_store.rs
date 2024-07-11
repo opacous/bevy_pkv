@@ -2,6 +2,8 @@ use crate::{Location, StoreImpl};
 use redb::{Database, ReadableTable, TableDefinition};
 use serde::{de::DeserializeOwned, Serialize};
 use std::fmt::{Debug, Formatter};
+use serde::de::DeserializeSeed;
+
 pub struct ReDbStore {
     db: Database,
 }
@@ -113,6 +115,10 @@ impl StoreImpl for ReDbStore {
         let bytes = key.value();
         let value = rmp_serde::from_slice(bytes)?;
         Ok(value)
+    }
+
+    fn get_with<T: for<'de> DeserializeSeed<'de>>(&self, key: &str, seed: T) -> Result<<T as DeserializeSeed<'_>>::Value, Self::GetError> {
+        todo!()
     }
 
     /// Clear all keys and their values

@@ -1,5 +1,6 @@
 use std::{fs, io};
 use std::path::Path;
+use serde::de::DeserializeSeed;
 use crate::{Location, PlatformDefault, StoreImpl};
 
 #[derive(Debug, Default)]
@@ -58,6 +59,10 @@ impl StoreImpl for FSStore {
         let data = fs::read_to_string(key)?;
         let value: T = serde_json::from_str(data.as_str())?;
         Ok(value)
+    }
+
+    fn get_with<T: for<'de> DeserializeSeed<'de>>(&self, key: &str, seed: T) -> Result<<T as DeserializeSeed<'_>>::Value, Self::GetError> {
+        todo!()
     }
 
     fn set<T: serde::Serialize>(&mut self, key: &str, value: &T) -> Result<(), SetError> {
