@@ -1,6 +1,7 @@
 use std::{fs, io};
 use std::path::Path;
 use serde::de::DeserializeSeed;
+use tracing::info;
 use crate::{Location, PlatformDefault, StoreImpl};
 
 #[derive(Debug, Default)]
@@ -33,6 +34,7 @@ impl FSStore {
         let dir_path = location.get_path();
         fs::create_dir_all(&dir_path)
             .expect("Failed to create directory to init key value store");
+        info!("Opened new fs data store at {}", dir_path);
         Self {
             path: dir_path.as_path().to_str().unwrap_or("./").to_string(),
         }

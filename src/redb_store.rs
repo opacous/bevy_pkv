@@ -3,6 +3,7 @@ use redb::{Database, ReadableTable, TableDefinition};
 use serde::{de::DeserializeOwned, Serialize};
 use std::fmt::{Debug, Formatter};
 use serde::de::DeserializeSeed;
+use tracing::info;
 
 pub struct ReDbStore {
     db: Database,
@@ -63,7 +64,9 @@ impl ReDbStore {
         std::fs::create_dir_all(&dir_path)
             .expect("Failed to create directory to init key value store");
         let db_path = dir_path.join("bevy_pkv.redb");
-        let db = Database::create(db_path).expect("Failed to init key value store");
+        let db = Database::create(db_path.clone()).expect("Failed to init key value store");
+
+        info!("Opened new redb data store at {:?}", db_path);
 
         let write_txn = db.begin_write().unwrap();
         write_txn.open_table(TABLE).unwrap();
