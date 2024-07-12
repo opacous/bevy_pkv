@@ -34,9 +34,10 @@ impl FSStore {
         let dir_path = location.get_path();
         fs::create_dir_all(&dir_path)
             .expect("Failed to create directory to init key value store");
-        info!("Opened new fs data store at {}", dir_path);
+        let path = dir_path.as_path().to_str().unwrap_or("./").to_string();
+        info!("Opened new fs data store at {}", path);
         Self {
-            path: dir_path.as_path().to_str().unwrap_or("./").to_string(),
+            path,
         }
     }
 
