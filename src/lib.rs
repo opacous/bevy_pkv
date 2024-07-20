@@ -163,7 +163,7 @@ impl PkvStore {
         self.inner.clear()
     }
 
-    fn keys(&self) -> Result<Vec<String>, GetError> {
+    pub fn keys(&self) -> Result<Vec<String>, GetError> {
         self.inner.keys()
     }
 }
