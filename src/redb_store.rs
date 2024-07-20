@@ -1,8 +1,8 @@
 use crate::{Location, StoreImpl};
 use redb::{Database, ReadableTable, TableDefinition};
+use serde::de::DeserializeSeed;
 use serde::{de::DeserializeOwned, Serialize};
 use std::fmt::{Debug, Formatter};
-use serde::de::DeserializeSeed;
 use tracing::info;
 
 pub struct ReDbStore {
@@ -121,7 +121,11 @@ impl StoreImpl for ReDbStore {
         Ok(value)
     }
 
-    fn get_with<T: for<'de> DeserializeSeed<'de>>(&self, key: &str, seed: T) -> Result<<T as DeserializeSeed<'_>>::Value, Self::GetError> {
+    fn get_with<T: for<'de> DeserializeSeed<'de>>(
+        &self,
+        key: &str,
+        seed: T,
+    ) -> Result<<T as DeserializeSeed<'_>>::Value, Self::GetError> {
         let read_txn = self.db.begin_read()?;
         let table = read_txn.open_table(TABLE)?;
         let key = table.get(key)?.ok_or(Self::GetError::NotFound)?;
@@ -147,5 +151,16 @@ impl StoreImpl for ReDbStore {
         }
         write_txn.commit()?;
         Ok(())
+    }
+
+    fn keys(&self) -> Result<Vec<String>, Self::GetError> {
+        let keys: Vec<String> = {
+            let read_txn = self.db.begin_read()?;
+            let table = read_txn.open_table(TABLE)?;
+            let range = table.iter()?;
+            range.map(|r| r.unwrap().0.value().to_string()).collect()
+        };
+
+        Ok(keys)
     }
 }

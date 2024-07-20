@@ -7,10 +7,12 @@ compile_error!(
 );
 
 #[cfg(not(any(rocksdb_backend, sled_backend, redb_backend, fs_backend, wasm)))]
-compile_error!("either the \"rocksdb\", \"redb\" or \"sled\" \"filestore\" feature must be enabled on native");
+compile_error!(
+    "either the \"rocksdb\", \"redb\" or \"sled\" \"filestore\" feature must be enabled on native"
+);
 
-use serde::{de::DeserializeOwned, Serialize};
 use serde::de::DeserializeSeed;
+use serde::{de::DeserializeOwned, Serialize};
 
 trait StoreImpl {
     type GetError;
@@ -20,10 +22,15 @@ trait StoreImpl {
         self.set(key, &value.to_string())
     }
     fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, Self::GetError>;
-    fn get_with<T: for<'de> DeserializeSeed<'de>>(&self, key: &str, seed: T) -> Result<<T as DeserializeSeed<'_>>::Value, Self::GetError>;
+    fn get_with<T: for<'de> DeserializeSeed<'de>>(
+        &self,
+        key: &str,
+        seed: T,
+    ) -> Result<<T as DeserializeSeed<'_>>::Value, Self::GetError>;
     fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError>;
     fn remove(&mut self, key: &str) -> Result<(), Self::SetError>;
     fn clear(&mut self) -> Result<(), Self::SetError>;
+    fn keys(&self) -> Result<Vec<String>, <Self as StoreImpl>::GetError>;
 }
 
 #[cfg(wasm)]
@@ -58,7 +65,6 @@ mod redb_store;
 
 #[cfg(redb_backend)]
 use redb_store::{self as backend};
-
 
 #[cfg(fs_backend)]
 mod fs_store;
@@ -135,7 +141,11 @@ impl PkvStore {
     pub fn get<T: DeserializeOwned>(&self, key: impl AsRef<str>) -> Result<T, GetError> {
         self.inner.get(key.as_ref())
     }
-    pub fn get_with<T: for<'de> DeserializeSeed<'de>>(&self, key: &str, seed: T) -> Result<<T as DeserializeSeed<'_>>::Value, GetError>{
+    pub fn get_with<T: for<'de> DeserializeSeed<'de>>(
+        &self,
+        key: &str,
+        seed: T,
+    ) -> Result<<T as DeserializeSeed<'_>>::Value, GetError> {
         self.inner.get_with(key, seed)
     }
 
@@ -151,6 +161,10 @@ impl PkvStore {
     /// returns Err(SetError) if clear error
     pub fn clear(&mut self) -> Result<(), SetError> {
         self.inner.clear()
+    }
+
+    fn keys(&self) -> Result<Vec<String>, GetError> {
+        self.inner.keys()
     }
 }
 

@@ -1,6 +1,6 @@
 use crate::{Location, StoreImpl};
-use serde::{de::DeserializeOwned, Serialize};
 use serde::de::DeserializeSeed;
+use serde::{de::DeserializeOwned, Serialize};
 
 #[derive(Debug)]
 pub struct RocksDBStore {
@@ -76,7 +76,11 @@ impl StoreImpl for RocksDBStore {
         Ok(value)
     }
 
-    fn get_with<T: for<'de> DeserializeSeed<'de>>(&self, key: &str, seed: T) -> Result<<T as DeserializeSeed<'_>>::Value, Self::GetError> {
+    fn get_with<T: for<'de> DeserializeSeed<'de>>(
+        &self,
+        key: &str,
+        seed: T,
+    ) -> Result<<T as DeserializeSeed<'_>>::Value, Self::GetError> {
         let bytes = self.db.get(key)?.ok_or(Self::GetError::NotFound)?;
         let mut deserializer = rmp_serde::decode::Deserializer::new(bytes.as_slice());
         seed.deserialize(&mut deserializer).map_err(Into::into)
