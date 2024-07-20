@@ -98,7 +98,7 @@ impl StoreImpl for FSStore {
     fn keys(&self) -> Result<Vec<String>, Self::GetError> {
         Ok(fs::read_dir(self.path.as_str())?
             .into_iter()
-            .filter_map(|p| Some(p.ok()?.path().to_str()?.to_string()))
+            .filter_map(|p| Some(p.ok()?.path().file_name()?.to_str()?.to_string()))
             .collect())
     }
 }
