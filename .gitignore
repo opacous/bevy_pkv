@@ -2,3 +2,4 @@
 Cargo.lock
 .vscode/
 bevy_pkv.sled/
+.*

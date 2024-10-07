@@ -96,6 +96,12 @@ impl PkvStore {
         Self::new_in_location(&config)
     }
 
+    pub fn new_at_path(path: &std::path::Path) -> Self {
+        let config = Location::CustomPath(path);
+        let inner = backend::InnerStore::new(config);
+        Self { inner }
+    }
+
     /// Creates or opens a persistent key value store
     ///
     /// Like [`PkvStore::new`], but also provide a qualifier.
