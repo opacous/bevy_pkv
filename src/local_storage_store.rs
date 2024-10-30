@@ -108,6 +108,7 @@ impl StoreImpl for LocalStorageStore {
         Ok(())
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     fn get_with<T: for<'de> DeserializeSeed<'de>>(
         &self,
         key: &str,
@@ -118,8 +119,34 @@ impl StoreImpl for LocalStorageStore {
         let entry = storage.get_item(&key).map_err(GetError::GetItem)?;
         let json = entry.as_ref().ok_or(GetError::NotFound)?;
 
-        let mut deserializer = serde_json::de::Deserializer::from_reader(json);
+        let mut deserializer = serde_json::de::Deserializer::from_str(json);
         seed.deserialize(&mut deserializer)
             .map_err(|e| Self::GetError::from(e))
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    fn get_with<T: for<'de> DeserializeSeed<'de>>(
+        &self,
+        key: &str,
+        seed: T,
+    ) -> Result<<T as DeserializeSeed<'_>>::Value, Self::GetError> {
+        todo!()
+    }
+
+    fn keys(&self) -> Result<Vec<String>, Self::GetError> {
+        let storage = self.storage();
+        let length = storage.length().map_err(GetError::GetItem)?;
+        let prefix = &self.prefix;
+        let mut keys = Vec::new();
+
+        for index in 0..length {
+            if let Some(key) = storage.key(index).map_err(GetError::GetItem)? {
+                if key.starts_with(prefix) {
+                    keys.push(key[prefix.len()..].to_string());
+                }
+            }
+        }
+
+        Ok(keys)
     }
 }

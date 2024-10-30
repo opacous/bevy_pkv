@@ -96,6 +96,10 @@ impl PkvStore {
         Self::new_in_location(&config)
     }
 
+    #[cfg(all(
+        any(sled_backend, rocksdb_backend, redb_backend, feature = "filestore"),
+        not(target_arch = "wasm32")
+    ))]
     pub fn new_at_path(path: &std::path::Path) -> Self {
         let config = Location::CustomPath(path);
         let inner = backend::InnerStore::new(config);
