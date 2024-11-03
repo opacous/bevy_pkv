@@ -93,4 +93,14 @@ impl StoreImpl for SledStore {
         self.db.flush()?;
         Ok(())
     }
+
+    fn keys(&self) -> Result<Vec<String>, <Self as StoreImpl>::GetError> {
+        let keys = self
+            .db
+            .iter()
+            .keys()
+            .map(|k| String::from_utf8(k?.to_vec()).map_err(|_| GetError::NotFound))
+            .collect::<Result<Vec<String>, GetError>>()?;
+        Ok(keys)
+    }
 }
