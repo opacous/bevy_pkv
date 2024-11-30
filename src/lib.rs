@@ -1,9 +1,9 @@
 #![warn(missing_docs)]
 #![doc = include_str!("../README.md")]
 
-#[cfg(all(rocksdb_backend, sled_backend, redb_backend))]
+#[cfg(all(rocksdb_backend, sled_backend, redb_backend, parquet_backend))]
 compile_error!(
-    "the \"rocksdb\", \"redb\" and \"sled\" features may not be enabled at the same time"
+    "the \"rocksdb\", \"redb\", \"parquet\" and \"sled\" features may not be enabled at the same time"
 );
 
 #[cfg(not(any(rocksdb_backend, sled_backend, redb_backend, fs_backend, wasm)))]
@@ -65,6 +65,12 @@ mod redb_store;
 
 #[cfg(redb_backend)]
 use redb_store::{self as backend};
+
+#[cfg(parquet_backend)]
+mod parquet_store;
+
+#[cfg(parquet_backend)]
+use parquet_store::{self as backend};
 
 #[cfg(fs_backend)]
 mod fs_store;
