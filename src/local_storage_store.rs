@@ -117,9 +117,13 @@ impl StoreImpl for LocalStorageStore {
         let key = self.format_key(key);
         let entry = storage.get_item(&key).map_err(GetError::GetItem)?;
         let json = entry.as_ref().ok_or(GetError::NotFound)?;
-
-        let mut deserializer = serde_json::de::Deserializer::from_reader(json);
+        let json_binging = json.clone();
+        let mut deserializer = serde_json::de::Deserializer::from_reader(json_binging.as_bytes());
         seed.deserialize(&mut deserializer)
             .map_err(|e| Self::GetError::from(e))
+    }
+
+    fn keys(&self) -> Result<Vec<String>, <Self as StoreImpl>::GetError> {
+        todo!()
     }
 }

@@ -102,6 +102,7 @@ impl PkvStore {
         Self::new_in_location(&config)
     }
 
+    #[cfg(any(sled_backend, rocksdb_backend, redb_backend, fs_backend))]
     pub fn new_at_path(path: &std::path::Path) -> Self {
         let config = Location::CustomPath(path);
         let inner = backend::InnerStore::new(config);
@@ -127,7 +128,7 @@ impl PkvStore {
     /// Like [`PkvStore::new`], but requires a direct path.
     /// The `path` is used to create a backing file
     /// in a corresponding location on the users device.
-    #[cfg(any(sled_backend, rocksdb_backend, redb_backend))]
+    #[cfg(any(sled_backend, rocksdb_backend, redb_backend, parquet_backend))]
     pub fn new_in_dir<P: AsRef<std::path::Path>>(path: P) -> Self {
         let inner = backend::InnerStore::new(Location::CustomPath(path.as_ref()));
         Self { inner }
@@ -209,7 +210,7 @@ mod tests {
         assert_eq!(ret.unwrap(), "goodbye");
     }
 
-    #[cfg(any(sled_backend, rocksdb_backend, redb_backend))]
+    #[cfg(any(sled_backend, rocksdb_backend, redb_backend, parquet_backend))]
     #[test]
     fn new_in_dir() {
         setup();
@@ -229,7 +230,7 @@ mod tests {
         assert_eq!(ret.unwrap(), "goodbye_custom_path");
     }
 
-    #[cfg(any(sled_backend, rocksdb_backend, redb_backend))]
+    #[cfg(any(sled_backend, rocksdb_backend, redb_backend, parquet_backend))]
     #[test]
     fn empty_db_not_found() {
         use crate::GetError;
